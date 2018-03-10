@@ -11,9 +11,9 @@
     s/conform
     s/explain-str))
 
-
 (defmacro conform-ex [spec-def data]
   (let [spec-fn (get-spec-fn `~spec-def data)]
     `(~spec-fn ~spec-def ~data)))
 
-
+;; TIP: comp n-ary operators for mapping across n collections
+#_(map (comp int +) [1 1] [1.0, 1.0])

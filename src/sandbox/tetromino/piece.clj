@@ -3,19 +3,10 @@
 
 (declare print-piece)
 
-(def print-size 2)
-
 (defrecord Piece [pieces pivot]
   Object
   (toString [this]
-    (print-piece this print-size)))
-
-(def tetrominos {:I (Piece. #{[1 0] [1 1] [1 2] [1 3]} [1.5 1.5])
-                 :L (Piece. #{[1 0] [1 1] [1 2] [2 2]} [1 1])
-                 :O (Piece. #{[0 0] [0 1] [1 0] [1 1]} [0.5 0.5])
-                 :Z (Piece. #{[0 0] [1 0] [1 1] [2 1]} [1 1])})
-
-#_(map str (vals tetrominos))
+    (print-piece this 1)))
 
 (defn- coord->rel
   "Finds the cell's position relative to the pivot"
@@ -27,33 +18,28 @@
   [rel pivot]
   (vec (map (comp int +) rel pivot)))
 
-#_(map (comp int +) [1 1] [1.0, 1.0])
-
-(defn- next-pos-cw
-  [[rx ry]] [(- ry) rx])
-
-(defn- next-pos-ccw
-  [[rx ry]] [ry (- rx)])
+(def rotate-fns {:cw (fn [[rx ry]] [(- ry) rx])
+                 :ccw (fn [[rx ry]] [ry (- rx)])})
 
 (defn next-coord-cw
   "Calculate the next rotation"
-  [pivot cell]
+  [pivot cell next-pos-fn]
   (-> cell
       (coord->rel pivot)
-      next-pos-cw
+      next-pos-fn
       (rel->coord pivot)))
 
+;; TODO: create specs
 (defn rotate-piece
-  [{:keys [pivot pieces] :as piece}]
+  [{:keys [pivot pieces] :as piece} direction] 
   (->> pieces
-       (map #(next-coord-cw pivot %))
+       (map #(next-coord pivot % (rotate-fns direction)))
        (into #{})
        (assoc piece :pieces)))
 
 (defn- get-bound [pieces]
   (apply max (map #(apply max %) pieces)))
 
-;; TODO: make pieces with size > 1 squared, not flat.
 (defn print-piece
   "Pretty prints a piece on screen with specified size."
   [{:keys [pieces]} size]
@@ -67,21 +53,5 @@
          (mapcat #(repeat size %))
          (map str/join)
          (str/join "\n"))))
-
-#_(println (-> tetrominos
-               :I
-               rotate-piece
-               rotate-piece
-               rotate-piece
-               str))
-
-#_(let [already-placed #{[0 1] [1 2]}
-        good-piece [[0 0] [0 2]]
-        bad-piece [[0 0] [0 1] [1 1]]]
-    (defn conflicts?
-      [piece placed]
-      (boolean (some placed piece)))
-    {:good-conflicts? (conflicts? good-piece already-placed)
-     :bad-conflicts? (conflicts? bad-piece already-placed)})
 
 
