@@ -1,12 +1,14 @@
 (ns sandbox.tetromino.core
-  (:require [sandbox.tetromino.piece :as piece]))
+  (:require [sandbox.tetromino.piece :as piece]
+            [sandbox.tetromino.board :as board]))
 
 (def tetrominos {:I (piece/->Piece #{[1 0] [1 1] [1 2] [1 3]} [1.5 1.5])
                  :L (piece/->Piece #{[1 0] [1 1] [1 2] [2 2]} [1 1])
                  :O (piece/->Piece #{[0 0] [0 1] [1 0] [1 1]} [0.5 0.5])
                  :Z (piece/->Piece #{[0 0] [1 0] [1 1] [2 1]} [1 1])})
 
-
+(def starting-bard
+  (board/->Board 10 15 tetrominos []))
 
 #_(println (-> tetrominos
                :I

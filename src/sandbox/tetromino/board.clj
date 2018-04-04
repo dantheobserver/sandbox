@@ -1,5 +1,33 @@
-(ns sandbox.tetromino.board)
+(ns sandbox.tetromino.board
+  ^{:doc "Operations on a tetromino board"}
+  (:require [sandbox.tetromino.piece :as piece]
+            [clojure.spec.alpha :as spec]))
 
+(declare print-board)
+
+;; TODO: definitely needs specs
+(defrecord Board [width height pieces current-piece]
+  Object
+  (toString [this]
+    (print-board this)))
+
+(defrecord BoardPiece [x y piece])
+
+(defn place-piece
+  "Add a `piece` to the `board` at `x-pos`.
+  Given a `piece` and an `x-pos`, will return the board
+  with the piece as the current. If  `x-pos` is beyond the bounds
+  of the board, will be placed at the nearest boundary."
+  [{:keys [width] :as board} piece x-pos]
+  (let [[px py] (piece/bounds piece)
+        offset 
+        overflow (- offset x)
+        piece-coord [(- x-pos overflow) (- 0 py)]] 
+    (assoc piece
+           :current-piece
+           {:piece piece, :pos piece-coord})))
+
+#_(ns-map 'sandbox.tetromino.board)
 
 #_(println (-> tetrominos
                :I

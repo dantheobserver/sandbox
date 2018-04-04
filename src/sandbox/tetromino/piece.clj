@@ -8,6 +8,12 @@
   (toString [this]
     (print-piece this 1)))
 
+(defn size
+  [{:keys [pieces]}]
+  (reduce (fn [[x y] [nx ny]]
+            [(max x nx) (max y ny)])
+          pieces))
+
 (defn- coord->rel
   "Finds the cell's position relative to the pivot"
   [cell pivot]
@@ -18,10 +24,10 @@
   [rel pivot]
   (vec (map (comp int +) rel pivot)))
 
-(def rotate-fns {:cw (fn [[rx ry]] [(- ry) rx])
-                 :ccw (fn [[rx ry]] [ry (- rx)])})
+(def ^:private rotate-fns {:cw (fn [[rx ry]] [(- ry) rx])
+                           :ccw (fn [[rx ry]] [ry (- rx)])})
 
-(defn next-coord-cw
+(defn next-coord
   "Calculate the next rotation"
   [pivot cell next-pos-fn]
   (-> cell
@@ -37,13 +43,13 @@
        (into #{})
        (assoc piece :pieces)))
 
-(defn- get-bound [pieces]
-  (apply max (map #(apply max %) pieces)))
+(defn bounds [piece]
+  (apply max (map #(apply max %) (piece :pieces))))
 
 (defn print-piece
   "Pretty prints a piece on screen with specified size."
-  [{:keys [pieces]} size]
-  (let [bound (inc (get-bound pieces))
+  [{:keys [pieces] :as piece} size]
+  (let [bound (inc (bounds piece))
         grid-range (range bound)]
     (->> (for [y grid-range
                x grid-range]
