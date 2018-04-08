@@ -1,53 +1,48 @@
 (ns sandbox.graphics.star-field
   (:require [quil.core :as q]
-            [quil.middleware :as m]))
+            [quil.middleware :as m]
+            [com.rpl.specter :as s]))
 
 (def field-size [800 600])
 
 (defn move-star
   [star]
-  (let [[dx dy] (:vec star)]
+  (let [[vx vy] (:vec star)]
     (-> star
-        (update :x (partial + dx))
-        (update :y (partial + dy)))))
-
-(defn hit-bounds?
-  [{:keys [x y rad]} bounds]
+        (update-in [:pos 0] (partial + vx))
+        (update-in [:pos 1] (partial + vx)))))
+(defn will-hit-bounds?
+  [{rad :rad, [x y] :pos, [dx dy] :vec} bounds]
   (let [half-r (/ rad 2)
-        [bx by] bounds]
-    (or (<= (- x half-r) 0)
-        (<= (- y half-r) 0)
-        (<= bx (+ x half-r))
-        (<= by (+ y half-r)))))
+        [bx by] bounds
+        [nx ny] [(+ x dx) (+ y dy)]]
+    (or (<= (- nx half-r) 0)
+        (<= (- ny half-r) 0)
+        (<= bx (+ nx half-r))
+        (<= by (+ ny half-r)))))
 
+;; draw functions
 (defn setup []
   (q/frame-rate 30)
   (let [[sx sy] (map #(/ % 2) field-size)]
     {:star {:rad 20
-            :x sx :y sy
-            :vec [2 2]}}))
-
-#_(let [nested {:a {:b 1 :c {:d 1}}}
-        {{b :b} :a} nested]
-    b)
+            :pos [sx sy]
+            :vec [16 16]}}))
 
 (defn update-scene [state]
-  (let [star (:star state)
-        moved-star (move-star star)]
-    (if (hit-bounds? moved-star field-size)
-      (let [star-reversed (update moved-star :vec (partial map -))]
-        (assoc state :star star-reversed))
-      (assoc state :star moved-star))))
-
-#_(update-scene {:star {:rad 20
-                        :x 1 :y 1
-                        :vec [1 1]}})
+  (let [collides? #(will-hit-bounds? % field-size)]
+    ;;just star
+    (s/multi-transform
+     [:star
+      (s/multi-path
+       [(complement collides?) (s/terminal move-star)]
+       [collides? :vec s/ALL (s/terminal -)])]
+     state)))
 
 (defn draw
   [{:keys [star]}]
   (q/background 3 140 170)
-  (println star)
-  (let [{:keys [x y rad]} star]
+  (let [{[x y] :pos, rad :rad} star]
     (q/ellipse x y rad rad)))
 
 (q/defsketch starfield
