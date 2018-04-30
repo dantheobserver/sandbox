@@ -5,14 +5,16 @@
             [sandbox.graphics.stars :as stars]))
 
 (def field-size [300 200])
+(let [[sx sy] (map #(/ % 2) field-size)]
+  (def state {:star {:rad 20
+                     :pos [sx sy]
+                     :vec [4 4]}}))
+
 
 ;; Draw functions
 (defn setup []
   (q/frame-rate 30)
-  (let [[sx sy] (map #(/ % 2) field-size)]
-    {:star {:rad 20
-            :pos [sx sy]
-            :vec [1 1]}}))
+  state)
 
 (defn update-scene [state]
   (update state :star stars/move-star field-size))
