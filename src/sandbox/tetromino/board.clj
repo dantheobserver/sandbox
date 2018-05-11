@@ -1,7 +1,7 @@
 (ns sandbox.tetromino.board
   ^{:doc "Operations on a tetromino board"}
   (:require [sandbox.tetromino.piece :as piece]
-            [clojure.spec.alpha :as spec]))
+            [sandbox.tetromino.specs :as specs]))
 
 (declare print-board)
 

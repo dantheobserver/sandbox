@@ -10,7 +10,6 @@
                      :pos [sx sy]
                      :vec [4 4]}}))
 
-
 ;; Draw functions
 (defn setup []
   (q/frame-rate 30)
@@ -26,6 +25,7 @@
     (q/ellipse x y rad rad)))
 
 (q/defsketch starfield
+  :features [:no-bind-output]
   :title "Filled with stars"
   :size field-size
   :setup setup

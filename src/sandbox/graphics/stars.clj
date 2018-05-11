@@ -5,7 +5,6 @@
   [{:keys [vec] :as star}]
   (transform [:pos INDEXED-VALS (collect-one FIRST) LAST]
              (fn [i p]
-               (println i p)
                (+ (vec i) p))
              star))
 
@@ -28,13 +27,14 @@
     (cond (exceeds-bounds? star-x-bounds bx) :LR
           (exceeds-bounds? star-y-bounds by) :TB)))
 
-;; TODO: Need to account for boundaries, can't just go by directions
 (defn move-star
   [star bounds]
   (if-let [hit-bound (boundary-hit? star bounds)]
     (let [[sx sy] (hit-transforms hit-bound)]
       (multi-transform
-       [:vec (multi-path [0 (terminal sx)]
-                         [1 (terminal sy)])]
+       (multi-path [:vec 0 (terminal sx)]
+                   [:vec 1 (terminal sy)]
+                                        ;[:pos 0 ]
+                   ) ; set it to the max/min-edge position if hit bound on next move
        star))
     (next-pos star)))

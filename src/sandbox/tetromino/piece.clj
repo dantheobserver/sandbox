@@ -1,5 +1,6 @@
 (ns sandbox.tetromino.piece
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [clojure.spec.alpha :as spec]))
 
 (declare print-piece)
 
